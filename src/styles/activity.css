@@ -1,0 +1,285 @@
+.story-activity{
+    --cell-width: min(
+        calc((var(--story-height) - 11rem) * 0.17),
+        calc((var(--story-width) - 3rem) * 0.0685)
+    );
+    --cell-height: calc(var(--cell-width) * 0.767);
+}
+
+.story-activity header .title {
+    max-height: 4rem;
+}
+
+.story-activity main{
+    width: 100%;
+    height: 100%;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    row-gap: 2rem;
+    display: flex;
+}
+
+.story-activity .grid{
+    width: min-content;
+    height: auto;
+    padding-top: calc(var(--cell-height) / 3);
+    padding-right: calc(var(--cell-width) / 2);
+    grid-template-columns: repeat(12, var(--cell-width));
+    grid-template-rows: repeat(3, var(--cell-height) 0px) var(--cell-height);
+    grid-auto-flow: column;
+    display: grid;
+}
+
+.story-activity .cell{
+    width: var(--cell-width);
+    height: var(--cell-height);
+    display: inline-block;
+    position: relative;
+}
+
+/* Прячем каждый второй час в горизонтальной ориентации */
+.story-activity .cell[hour="2"],
+.story-activity .cell[hour="4"],
+.story-activity .cell[hour="6"],
+.story-activity .cell[hour="8"],
+.story-activity .cell[hour="10"],
+.story-activity .cell[hour="12"],
+.story-activity .cell[hour="14"],
+.story-activity .cell[hour="16"],
+.story-activity .cell[hour="18"],
+.story-activity .cell[hour="20"],
+.story-activity .cell[hour="22"],
+.story-activity .cell[hour="24"]{
+    display: none;
+}
+
+/* Поднимаем и сдвигаем на полклетки столбики чётных рядов */
+.story-activity .cell[weekday="2"],
+.story-activity .cell[weekday="4"],
+.story-activity .cell[weekday="6"]{
+    transform: translateX(calc(var(--cell-width) / 2))
+               translateY(calc(var(--cell-height) / -2));
+}
+
+.story-activity .cell::before{
+    content: '';
+    width: 100%;
+    height: calc(var(--cell-height) * 3);
+    left: 0;
+    bottom: 0;
+    background-image: var(--cell-3d-min-image);
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    background-size: contain;
+    display: block;
+    position: absolute;
+}
+
+.story-activity .cell.h-min::before{
+    background-image: var(--cell-3d-min-image);
+}
+
+.story-activity .cell.h-mid::before{
+    background-image: var(--cell-3d-mid-image);
+}
+
+.story-activity .cell.h-max::before{
+    background-image: var(--cell-3d-max-image);
+}
+
+.story-activity .cell.h-extra::before{
+    background-image: var(--cell-3d-extra-image);
+}
+
+.story-activity .legend{
+    width: min-content;
+    height: 2.375rem;
+    column-gap: 0.5rem;
+    justify-content: center;
+    display: flex;
+}
+
+.story-activity .legend li{
+    width: 3.75rem;
+    height: 100%;
+    display: inline-block;
+}
+
+.story-activity .legend__min_cell,
+.story-activity .legend__mid_cell,
+.story-activity .legend__max_cell,
+.story-activity .legend__extra_cell,
+.story-activity .legend__step{
+    width: 100%;
+    height: 0.75rem;
+    border-radius: 0.125rem;
+}
+
+.story-activity .legend__min_cell{
+    background: var(--cell-legend-min-background);
+    box-shadow: var(--cell-legend-min-shadow);
+}
+
+.story-activity .legend__mid_cell{
+    background: var(--cell-legend-mid-background);
+    box-shadow: var(--cell-legend-mid-shadow);
+}
+
+.story-activity .legend__max_cell{
+    background: var(--cell-legend-max-background);
+    box-shadow: var(--cell-legend-max-shadow);
+}
+
+.story-activity .legend__extra_cell{
+    background: var(--cell-legend-extra-background);
+    box-shadow: var(--cell-legend-extra-shadow);
+}
+
+.story-activity .legend__step{
+    width: calc(100% - 0.5rem);
+    height: 0.25rem;
+    margin: 0.25rem;
+    margin-bottom: 0.75rem;
+    background: var(--cell-legend-step-horizontal-background);
+    box-shadow: var(--cell-legend-step-horizontal-shadow);
+    border-radius: 0;
+    position: relative;
+}
+
+.story-activity .legend__step::before,
+.story-activity .legend__step::after{
+    content: '';
+    width: 0.25rem;
+    height: 0.75rem;
+    top: -0.25rem;
+    left: -0.25rem;
+    background: var(--cell-legend-step-verticals-background);
+    box-shadow: var(--cell-legend-step-verticals-shadow);
+    border-radius: 0.125rem;
+    display: block;
+    position: absolute;
+}
+
+.story-activity .legend__step::after{
+    left: auto;
+    right: -0.25rem;
+}
+
+.story-activity .legend h3{
+    color: var(--text-color-sub);
+    margin-top: 0.5rem;
+    text-align: center;
+}
+
+@media screen and (orientation:landscape) {
+    /* Меняем порядок наложение столбцов с слева-направо на сверху-вниз */
+    .story-activity .cell[weekday="1"] {
+        z-index: 1;
+    }
+    .story-activity .cell[weekday="2"] {
+        z-index: 2;
+    }
+    .story-activity .cell[weekday="3"] {
+        z-index: 3;
+    }
+    .story-activity .cell[weekday="4"] {
+        z-index: 4;
+    }
+    .story-activity .cell[weekday="5"] {
+        z-index: 5;
+    }
+    .story-activity .cell[weekday="6"] {
+        z-index: 6;
+    }
+    .story-activity .cell[weekday="7"] {
+        z-index: 7;
+    }
+}
+
+@media screen and (orientation:portrait) {
+    .story-activity{
+        --cell-width: min(
+            calc((var(--story-height) - 3rem) / 12.5),
+            calc((var(--story-width) - 3rem) / 7.5)
+        );
+        --cell-height: calc(var(--cell-width) * 0.765);
+    }
+
+    .story-activity header .title {
+        max-height: 2rem;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+    
+    .story-activity main{
+        justify-content: flex-end;
+        row-gap: 0.4rem;
+    }
+    
+    .story-activity .grid{
+        width: min-content;
+        height: auto;
+        flex: 1;
+        padding-top: 0;
+        padding-right: calc(var(--cell-width) / 2);
+        grid-template-columns: repeat(7, var(--cell-width));
+        grid-template-rows: repeat(12, var(--cell-height) 0);
+        grid-auto-flow: row;
+        align-content: center;
+    }
+
+    /* Отмена смещения для горизонатльной ориентации */
+    .story-activity .cell[weekday="2"],
+    .story-activity .cell[weekday="4"],
+    .story-activity .cell[weekday="6"]{
+        transform: none;
+    }
+    
+    /* Показываем, поднимаем и сдвигаем на полклетки чётные столбики */
+    .story-activity .cell[hour="2"],
+    .story-activity .cell[hour="4"],
+    .story-activity .cell[hour="6"],
+    .story-activity .cell[hour="8"],
+    .story-activity .cell[hour="10"],
+    .story-activity .cell[hour="12"],
+    .story-activity .cell[hour="14"],
+    .story-activity .cell[hour="16"],
+    .story-activity .cell[hour="18"],
+    .story-activity .cell[hour="20"],
+    .story-activity .cell[hour="22"],
+    .story-activity .cell[hour="24"]{
+        transform: translateX(calc(var(--cell-width) / 2))
+                   translateY(calc(var(--cell-height) / -2));
+        display: block;
+    }
+
+    .story-activity .cell.v-min::before{
+        background-image: var(--cell-3d-min-image);
+    }
+    
+    .story-activity .cell.v-mid::before{
+        background-image: var(--cell-3d-mid-image);
+    }
+    
+    .story-activity .cell.v-max::before{
+        background-image: var(--cell-3d-max-image);
+    }
+    
+    .story-activity .cell.v-extra::before{
+        background-image: var(--cell-3d-extra-image);
+    }
+
+    .story-activity .legend {
+        margin-bottom: 1.5rem;
+    }
+
+    .story-activity .legend li{
+        width: 3.7rem;
+    }
+
+    .story-activity .legend h3{
+        text-align: left;
+    }
+}
