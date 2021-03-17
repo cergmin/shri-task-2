@@ -59,7 +59,7 @@ http.createServer(function(req, res){
     }
     else{
         try{
-            const filepath = path.join(__dirname, '/build/', urlData.pathname);
+            const filepath = path.join(__dirname, '../build/', urlData.pathname);
         
             const stream = fs.createReadStream(filepath);
 
@@ -84,8 +84,6 @@ http.createServer(function(req, res){
                     {'Content-Type': 'text/plain', Connection: 'close'}
                 );
                 res.end(message || 'Internal error');
-
-                // console.warn(err);
             });
 
             stream.pipe(res);
@@ -97,7 +95,6 @@ http.createServer(function(req, res){
         catch(err) {
             res.writeHead(err.code || 500, { Connection: 'close' });
             res.end(err.message || 'Internal error');
-            // console.log(err);
         }
     }
 }).listen(8080);
