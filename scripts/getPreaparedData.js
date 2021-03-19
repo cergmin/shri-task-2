@@ -2,7 +2,7 @@ const fs = require('fs');
 const prepareData = require('../build/index.js').prepareData;
 
 let input_data = fs.readFileSync(
-    './tests/input.json',
+    './test/input.json',
     {
         encoding:'utf8',
         flag:'r'
