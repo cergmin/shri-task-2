@@ -1,11 +1,28 @@
 let sprintsTimestamps = [];
 let currSprint;
-let commits = [];
+let sprints = {};
 let users = {};
-let usersCommitsAmount = {};
-let usersLikesAmount = {};
-let sprintsCommitsAmount = {};
+let commits = [];
+let summaries = {};
 
+const sprintsDefaultTemplate = {
+    'name': '',
+    'commits': 0
+};
+
+const userDefaultTemplate = {
+    'name': '',
+    'avatar': '',
+    'commits': 0,
+    'likes': 0,
+    'size': 0
+};
+
+const summariesDefaultTemplate = {
+    'size': 0
+};
+
+// Получить форму множественного числа существительного
 function getPluralForm(n, form1, form2, form5){
     n = Math.abs(n);
     
@@ -26,6 +43,7 @@ function getPluralForm(n, form1, form2, form5){
     return form5;
 }
 
+// Получить id спринта по временному отрезку
 function getSprintId(timestamp){
     let l = 0;
     let c = 0;
@@ -45,62 +63,90 @@ function getSprintId(timestamp){
     return sprintsTimestamps[r][2];
 }
 
-function addEntity(entity){
+// Принимает на вход id: число, строку или объект
+// Возвращает id в виде строки,
+// если был получен объект, то о нём записывается информация
+function getEntityId(entity){
+    let entityId = entity;
+    if(entity instanceof Object){
+        entityId = entity['id'];
+        writeEntity(entity);
+    }
+
+    return entityId.toString();
+}
+
+// Добавить/изменить информацию о сущности
+// в соответствующую переменную 
+function writeEntity(entity){
     if(!(entity instanceof Object)){
         return;
     }
 
     switch(entity['type']){
         case 'Commit':
-            if(entity['timestamp'] >= currSprint['startAt'] &&
-                entity['timestamp'] <= currSprint['finishAt']){
-                    commits.push(entity);
-                    
-                    let authorId = entity['author'];
-                    if(entity['author'] instanceof Object){
-                        authorId = entity['author']['id'];
-                        addEntity(entity['author']);
-                    }
-                    
-                    if(authorId in usersCommitsAmount){
-                        usersCommitsAmount[authorId]++;
-                    }
-                    else{
-                        usersCommitsAmount[authorId] = 1;
-                    }
+            let currSprintObj = Object.assign(
+                {
+                    'sprintId': getSprintId(entity['timestamp'])
+                },
+                entity
+            )
+            commits.push(currSprintObj);
+            
+            // Проверяем, относится ли коммит к текущему спринту
+            if(currSprintObj['sprintId'] == currSprint['id']){
+                // Получаем id автора
+                let authorId = getEntityId(entity['author']);
+                
+                // Создаём запись о нём, если её ещё нет
+                if(!(authorId in users)){
+                    users[authorId] = Object.assign({}, userDefaultTemplate);
+                }
+
+                // Увеличиваем значение счётчика коммитов у автора
+                users[authorId]['commits']++;
             }
 
-            let sprintId = getSprintId(entity['timestamp']);
-            if(sprintId in sprintsCommitsAmount){
-                sprintsCommitsAmount[sprintId]++;
-            }
-            else{
-                sprintsCommitsAmount[sprintId] = 1;
-            }
+            sprints[currSprintObj['sprintId']]['commits']++;
             break;
         case 'Comment':
+            // Проверяем, относится ли комментарий к текущему спринту
             if(entity['createdAt'] >= currSprint['startAt'] &&
                 entity['createdAt'] <= currSprint['finishAt']){
-                    let authorId = entity['author'];
-                    if(entity['author'] instanceof Object){
-                        authorId = entity['author']['id'];
-                        addEntity(entity['author']);
-                    }
+                    // Получаем id автора
+                    let authorId = getEntityId(entity['author']);
                     
-                    if(authorId in usersLikesAmount){
-                        usersLikesAmount[authorId] += entity['likes'].length;
+                    // Создаём запись о нём, если её ещё нет
+                    if(!(authorId in users)){
+                        users[authorId] = Object.assign({}, userDefaultTemplate);
                     }
-                    else{
-                        usersLikesAmount[authorId] = entity['likes'].length;
-                    }
+
+                    // Обновляем значение счётчика лайков у автора
+                    users[authorId]['likes'] += entity['likes'].length;
             }
             break;
         case 'User':
-            users[entity['id']] = entity;
+            let userId = entity['id'].toString();
+
+            if(!(userId in users)){
+                users[userId] = Object.assign({}, userDefaultTemplate);
+            }
+
+            users[userId]['name'] = entity['name'];
+            users[userId]['avatar'] = entity['avatar'];
 
             for(let i = 0; i < entity['friends'].length; i++){
-                addEntity(entity['friends'][i]);
+                writeEntity(entity['friends'][i]);
             }
+            break;
+        case 'Summary':
+            let summaryId = entity['id'].toString();
+    
+            if(!(summaryId in summaries)){
+                summaries[summaryId] = Object.assign({}, summariesDefaultTemplate);
+            }
+    
+            summaries[summaryId]['size'] = entity['added'] + entity['removed'];
             break;
     }
 }
@@ -112,6 +158,9 @@ function prepareData(entities, params){
             if(entities[i]['id'] === params['sprintId']){
                 currSprint = entities[i];
             }
+
+            sprints[entities[i]['id']] = Object.assign({}, sprintsDefaultTemplate);
+            sprints[entities[i]['id']]['name'] = entities[i]['name'];
 
             sprintsTimestamps.push([
                 entities[i]['startAt'],
@@ -126,57 +175,232 @@ function prepareData(entities, params){
     });
 
     for(let i = 0; i < entities.length; i++){
-        addEntity(entities[i]);
+        writeEntity(entities[i]);
+    }
+    let usersSortedByCommits = Object.entries(users).sort(function(a, b){
+        return b[1]['commits'] - a[1]['commits'];
+    });
+
+    let usersSortedByLikes = Object.entries(users).sort(function(a, b){
+        return b[1]['likes'] - a[1]['likes'];
+    });
+
+    // Вычисление размера каждого коммита текущего спринта
+    for(let i = 0; i < commits.length; i++){
+        // Проверяем, что спринт принадлежит
+        // текущему или предыдущему спринту
+        if(commits[i]['sprintId'] != currSprint['id'] &&
+            commits[i]['sprintId'] != (currSprint['id'] - 1)){
+                continue;
+        }
+
+        let commitSize = 0;
+
+        for(let j = 0; j < commits[i]['summaries'].length; j++){
+            let summaryId = getEntityId(commits[i]['summaries'][j]);
+            commitSize += summaries[summaryId]['size'];
+        }
+
+        commits[i]['size'] = commitSize;
     }
 
     // Вывод информации
     let data = [];
     let subdata = {};
 
-    // "Лидеры по коммитам"
+    // leaders (Больше всего коммитов)
     subdata = {
         'alias': 'leaders',
         'data': {
             'title': 'Больше всего коммитов',
-            'subtitle': 'Последний вагон',
+            'subtitle': currSprint['name'],
             'emoji': '👑',
             'users': []
         }
     };
-    for(let [userId, commitsAmount] of Object.entries(usersCommitsAmount).sort(([,a],[,b]) => b-a)){
+
+    for(let [userId, userObj] of usersSortedByCommits){
         subdata['data']['users'].push({
             'id': Number(userId),
             'name': users[userId]['name'],
             'avatar': users[userId]['avatar'],
-            'valueText': commitsAmount.toString()
+            'valueText': userObj['commits'].toString()
         });
     }
+
     data.push(subdata);
 
-    // "Самый внимательный разработчик"
+    // vote (Самый внимательный разработчик)
     subdata = {
         'alias': 'vote',
         'data': {
             'title': 'Самый 🔎 внимательный разработчик',
-            'subtitle': 'Спринт № 213',
+            'subtitle': currSprint['name'],
             'emoji': '🔎',
             'users': []
         }
     };
-    for(let [userId, likesAmount] of Object.entries(usersLikesAmount).sort(([,a],[,b]) => b-a)){
+
+    for(let [userId, userObj] of usersSortedByLikes){
         subdata['data']['users'].push({
             'id': Number(userId),
             'name': users[userId]['name'],
             'avatar': users[userId]['avatar'],
-            'valueText': likesAmount.toString() + ' ' +
+            'valueText': userObj['likes'].toString() + ' ' +
                 getPluralForm(
-                    likesAmount,
+                    userObj['likes'],
                     'голос',
                     'голоса',
                     'голосов'
                 )
         });
     }
+
+    data.push(subdata);
+
+    // chart (Коммиты)
+    subdata = {
+        'alias': 'chart',
+        'data': {
+            'title': 'Коммиты',
+            'subtitle': currSprint['name'],
+            'values': [],
+            'users': []
+        }
+    };
+
+    for(let [sprintId, sprintObj] of Object.entries(sprints)){
+        let valueObj = {
+            'title': sprintId.toString(),
+            'hint': sprintObj['name'],
+            'value': sprintObj['commits']
+        };
+
+        if(sprintId == currSprint['id']){
+            valueObj['active'] = true;
+        }
+
+        subdata['data']['values'].push(valueObj);
+    }
+
+    for(let [userId, userObj] of usersSortedByCommits){
+        subdata['data']['users'].push({
+            'id': Number(userId),
+            'name': users[userId]['name'],
+            'avatar': users[userId]['avatar'],
+            'valueText': userObj['commits'].toString()
+        });
+    }
+
+    data.push(subdata);
+
+    // diagram (Размер коммитов)
+    let diagramCategoryBreakpoints = [0, 100, 500, 1000];
+    let currCommitsAmount = sprints[currSprint['id'].toString()]['commits'];
+    let prevCommitsAmount = sprints[(currSprint['id'] - 1).toString()]['commits'];
+    let totalText = currCommitsAmount + ' ' + getPluralForm(
+        currCommitsAmount,
+        'коммит',
+        'коммита',
+        'коммитов'
+    );
+    let differenceText = (currCommitsAmount - prevCommitsAmount) + ' с прошлого спринта';
+    
+    // Получаем вспомогательный массив с информацией о каждой категории
+    let categoriesData = [];
+    for(let i = diagramCategoryBreakpoints.length - 1; i >= 0; i--){
+        let dataObj = {
+            'minSize': diagramCategoryBreakpoints[i] + 1,
+            'maxSize': Infinity,
+            'value': 0,
+            'prevValue': 0  // Количество коммитов предыдущего спринта
+        }
+
+        if(i + 1 < diagramCategoryBreakpoints.length){
+            dataObj['maxSize'] = diagramCategoryBreakpoints[i + 1];
+        }
+
+        categoriesData.push(dataObj);
+    }
+
+    for(let commit of commits){
+        // Проверяем, что спринт принадлежит
+        // текущему или предыдущему спринту
+        if(commit['sprintId'] != currSprint['id'] &&
+            commit['sprintId'] != (currSprint['id'] - 1)){
+                continue;
+        }
+
+        let commitCategory = 0;
+
+        // Определяем категорию коммита
+        for(let i = 0; i < categoriesData.length; i++){
+            if(categoriesData[i]['minSize'] <= commit['size'] &&
+                categoriesData[i]['maxSize'] >= commit['size']){
+                    commitCategory = i;
+            }
+        }
+
+        if(commit['sprintId'] == currSprint['id']){
+            categoriesData[commitCategory]['value']++;
+        }
+        else{
+            categoriesData[commitCategory]['prevValue']++;
+        }
+    }
+
+    categoriesData = categoriesData.map(function(data){
+        let newData = {};
+
+        if(data['maxSize'] === Infinity){
+            newData['title'] = '> ' + data['minSize'] + ' ' +
+                getPluralForm(
+                    data['minSize'],
+                    'строки',
+                    'строк',
+                    'строк'
+                );
+        }
+        else{
+            newData['title'] = data['minSize'] + ' — ' + data['maxSize'] + ' ' +
+                getPluralForm(
+                    data['maxSize'],
+                    'строка',
+                    'строки',
+                    'строк'
+                );
+        }
+
+        newData['valueText'] = data['value'] + ' ' +
+            getPluralForm(
+                data['value'],
+                'коммит',
+                'коммита',
+                'коммитов'
+            );
+
+        newData['differenceText'] = (data['value'] - data['prevValue']) + ' ' +
+            getPluralForm(
+                (data['value'] - data['prevValue']),
+                'коммит',
+                'коммита',
+                'коммитов'
+            );
+
+        return newData;
+    });
+
+    subdata = {
+        'alias': 'diagram',
+        'data': {
+            'title': 'Размер коммитов',
+            'subtitle': currSprint['name'],
+            'totalText': totalText,
+            'differenceText': differenceText,
+            'categories': categoriesData
+        }
+    };
+
     data.push(subdata);
 
     return data;

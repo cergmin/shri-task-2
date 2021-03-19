@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node ./scripts/server.js",
     "test": "mocha",
-    "debug": "node ./scripts/getPreaparedData.js",
+    "debug": "node ./scripts/debug.js",
     "build": "webpack --mode production",
     "dev": "webpack --mode development",
     "watch": "webpack --watch --mode development"
