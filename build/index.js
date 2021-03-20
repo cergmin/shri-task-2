@@ -204,11 +204,11 @@ function prepareData(entities, params){
         commits[i]['size'] = commitSize;
     }
 
-    // Вывод информации
+    // Вывод информации для отображения слайдов
     let data = [];
     let subdata = {};
 
-    // leaders (Больше всего коммитов)
+    // Слайд: leaders (Больше всего коммитов)
     subdata = {
         'alias': 'leaders',
         'data': {
@@ -230,7 +230,7 @@ function prepareData(entities, params){
 
     data.push(subdata);
 
-    // vote (Самый внимательный разработчик)
+    // Слайд: vote (Самый внимательный разработчик)
     subdata = {
         'alias': 'vote',
         'data': {
@@ -258,7 +258,7 @@ function prepareData(entities, params){
 
     data.push(subdata);
 
-    // chart (Коммиты)
+    // Слайд: chart (Коммиты)
     subdata = {
         'alias': 'chart',
         'data': {
@@ -294,7 +294,7 @@ function prepareData(entities, params){
 
     data.push(subdata);
 
-    // diagram (Размер коммитов)
+    // Слайд: diagram (Размер коммитов)
     let diagramCategoryBreakpoints = [0, 100, 500, 1000];
     let currCommitsAmount = sprints[currSprint['id'].toString()]['commits'];
     let prevCommitsAmount = sprints[(currSprint['id'] - 1).toString()]['commits'];
@@ -398,6 +398,47 @@ function prepareData(entities, params){
             'totalText': totalText,
             'differenceText': differenceText,
             'categories': categoriesData
+        }
+    };
+
+    data.push(subdata);
+
+    // Слайд: activity (Коммиты)
+    const weekdays = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+    const timezoneOffset = 60 * 3;  // В минутах (UTC +3 Moscow)
+    // const timezoneOffset = new Date().getTimezoneOffset();
+
+    let activityData = {};
+    
+    // Создаём пустую activityData 
+    for(let weekday of weekdays){
+        activityData[weekday] = [];
+    
+        for(let i = 0; i < 24; i++){
+            activityData[weekday].push(0);
+        }
+    }
+
+    for(let commit of commits){
+        if(commit['sprintId'] == currSprint['id']){
+            let commitDate = new Date(
+                commit['timestamp'] + timezoneOffset * 60 * 1000
+            );
+    
+            activityData[
+                weekdays[commitDate.getUTCDay()]
+            ][
+                commitDate.getUTCHours()
+            ]++;
+        }
+    }
+
+    subdata = {
+        'alias': 'activity',
+        'data': {
+            'title': 'Коммиты',
+            'subtitle': currSprint['name'],
+            'data': activityData
         }
     };
 
