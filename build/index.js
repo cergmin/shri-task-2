@@ -208,11 +208,11 @@ function prepareData(entities, params){
         commits[i]['size'] = commitSize;
     }
 
-    // Вывод информации для отображения слайдов
+    // Вывод подготовленной для слайдов информации
     let data = [];
     let subdata = {};
 
-    // Слайд: leaders (Больше всего коммитов)
+    // Карточка: leaders (Больше всего коммитов)
     subdata = {
         'alias': 'leaders',
         'data': {
@@ -234,7 +234,7 @@ function prepareData(entities, params){
 
     data.push(subdata);
 
-    // Слайд: vote (Самый внимательный разработчик)
+    // Карточка: vote (Самый внимательный разработчик)
     subdata = {
         'alias': 'vote',
         'data': {
@@ -262,7 +262,7 @@ function prepareData(entities, params){
 
     data.push(subdata);
 
-    // Слайд: chart (Коммиты)
+    // Карточка: chart (Коммиты)
     subdata = {
         'alias': 'chart',
         'data': {
@@ -298,18 +298,21 @@ function prepareData(entities, params){
 
     data.push(subdata);
 
-    // Слайд: diagram (Размер коммитов)
+    // Карточка: diagram (Размер коммитов)
     let diagramCategoryBreakpoints = [0, 100, 500, 1000];
     let currCommitsAmount = sprints[currSprint['id'].toString()]['commits'];
     let prevCommitsAmount = sprints[(currSprint['id'] - 1).toString()]['commits'];
+    let commitsAmountDiff = currCommitsAmount - prevCommitsAmount;
     let totalText = currCommitsAmount + ' ' + getPluralForm(
         currCommitsAmount,
         'коммит',
         'коммита',
         'коммитов'
     );
-    let differenceText = (currCommitsAmount - prevCommitsAmount) + ' с прошлого спринта';
-    
+
+    let differenceText = (commitsAmountDiff > 0 ? '+' : '') + 
+        commitsAmountDiff + ' с прошлого спринта';
+
     // Получаем вспомогательный массив с информацией о каждой категории
     let categoriesData = [];
     for(let i = diagramCategoryBreakpoints.length - 1; i >= 0; i--){
@@ -366,7 +369,8 @@ function prepareData(entities, params){
                 );
         }
         else{
-            newData['title'] = data['minSize'] + ' — ' + data['maxSize'] + ' ' +
+            newData['title'] = data['minSize'] + ' — ' +
+                data['maxSize'] + ' ' +
                 getPluralForm(
                     data['maxSize'],
                     'строка',
@@ -383,9 +387,12 @@ function prepareData(entities, params){
                 'коммитов'
             );
 
-        newData['differenceText'] = (data['value'] - data['prevValue']) + ' ' +
+        let valueDiff = data['value'] - data['prevValue'];
+
+        newData['differenceText'] = (valueDiff > 0 ? '+' : '') + 
+            valueDiff + ' ' +
             getPluralForm(
-                (data['value'] - data['prevValue']),
+                valueDiff,
                 'коммит',
                 'коммита',
                 'коммитов'
@@ -407,7 +414,7 @@ function prepareData(entities, params){
 
     data.push(subdata);
 
-    // Слайд: activity (Коммиты)
+    // Карточка: activity (Коммиты)
     const weekdays = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
     const timezoneOffset = 60 * 3;  // В минутах (UTC +3 Moscow)
     // const timezoneOffset = new Date().getTimezoneOffset();

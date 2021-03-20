@@ -12,10 +12,10 @@ let input_data = fs.readFileSync(
 input_data = JSON.parse(input_data);
 
 try{
-    let data = prepareData(input_data, {'sprintId': 977});
+    let data = prepareData(input_data, {'sprintId': 976});
     console.log(
         util.inspect(
-            data[4],
+            data[3],
             {
                 showHidden: false,
                 depth: null,
