@@ -301,7 +301,12 @@ function prepareData(entities, params){
     // Карточка: diagram (Размер коммитов)
     let diagramCategoryBreakpoints = [0, 100, 500, 1000];
     let currCommitsAmount = sprints[currSprint['id'].toString()]['commits'];
-    let prevCommitsAmount = sprints[(currSprint['id'] - 1).toString()]['commits'];
+
+    let prevCommitsAmount = 0;
+    if((currSprint['id'] - 1).toString() in sprints){
+        prevCommitsAmount = sprints[(currSprint['id'] - 1).toString()]['commits'];
+    }
+    
     let commitsAmountDiff = currCommitsAmount - prevCommitsAmount;
     let totalText = currCommitsAmount + ' ' + getPluralForm(
         currCommitsAmount,

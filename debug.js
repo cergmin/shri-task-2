@@ -1,6 +1,6 @@
 const fs = require('fs');
 const util = require('util');
-const prepareData = require('../build/index.js').prepareData;
+const prepareData = require('./build/index.js').prepareData;
 
 let input_data = fs.readFileSync(
     './test/input.json',
@@ -12,10 +12,10 @@ let input_data = fs.readFileSync(
 input_data = JSON.parse(input_data);
 
 try{
-    let data = prepareData(input_data, {'sprintId': 973});
+    let data = prepareData(input_data, {'sprintId': 958});
     console.log(
         util.inspect(
-            data[2],
+            data[3],
             {
                 showHidden: false,
                 depth: null,
