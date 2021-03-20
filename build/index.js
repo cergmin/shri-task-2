@@ -185,6 +185,10 @@ function prepareData(entities, params){
         return b[1]['likes'] - a[1]['likes'];
     });
 
+    let sprintsSortedById = Object.entries(sprints).sort(function(a, b){
+        return a[0] - b[0];
+    });
+
     // Вычисление размера каждого коммита текущего спринта
     for(let i = 0; i < commits.length; i++){
         // Проверяем, что спринт принадлежит
@@ -269,7 +273,7 @@ function prepareData(entities, params){
         }
     };
 
-    for(let [sprintId, sprintObj] of Object.entries(sprints)){
+    for(let [sprintId, sprintObj] of sprintsSortedById){
         let valueObj = {
             'title': sprintId.toString(),
             'hint': sprintObj['name'],
