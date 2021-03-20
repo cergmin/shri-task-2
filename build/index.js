@@ -224,12 +224,14 @@ function prepareData(entities, params){
     };
 
     for(let [userId, userObj] of usersSortedByCommits){
-        subdata['data']['users'].push({
-            'id': Number(userId),
-            'name': users[userId]['name'],
-            'avatar': users[userId]['avatar'],
-            'valueText': userObj['commits'].toString()
-        });
+        if(userObj['commits'] > 0){
+            subdata['data']['users'].push({
+                'id': Number(userId),
+                'name': users[userId]['name'],
+                'avatar': users[userId]['avatar'],
+                'valueText': userObj['commits'].toString()
+            });
+        }
     }
 
     data.push(subdata);
@@ -246,18 +248,20 @@ function prepareData(entities, params){
     };
 
     for(let [userId, userObj] of usersSortedByLikes){
-        subdata['data']['users'].push({
-            'id': Number(userId),
-            'name': users[userId]['name'],
-            'avatar': users[userId]['avatar'],
-            'valueText': userObj['likes'].toString() + ' ' +
-                getPluralForm(
-                    userObj['likes'],
-                    'голос',
-                    'голоса',
-                    'голосов'
-                )
-        });
+        if(userObj['likes'] > 0){
+            subdata['data']['users'].push({
+                'id': Number(userId),
+                'name': users[userId]['name'],
+                'avatar': users[userId]['avatar'],
+                'valueText': userObj['likes'].toString() + ' ' +
+                    getPluralForm(
+                        userObj['likes'],
+                        'голос',
+                        'голоса',
+                        'голосов'
+                    )
+            });
+        }
     }
 
     data.push(subdata);
@@ -288,12 +292,14 @@ function prepareData(entities, params){
     }
 
     for(let [userId, userObj] of usersSortedByCommits){
-        subdata['data']['users'].push({
-            'id': Number(userId),
-            'name': users[userId]['name'],
-            'avatar': users[userId]['avatar'],
-            'valueText': userObj['commits'].toString()
-        });
+        if(userObj['commits'] > 0){
+            subdata['data']['users'].push({
+                'id': Number(userId),
+                'name': users[userId]['name'],
+                'avatar': users[userId]['avatar'],
+                'valueText': userObj['commits'].toString()
+            });
+        }
     }
 
     data.push(subdata);

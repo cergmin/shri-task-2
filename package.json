@@ -2,7 +2,7 @@
   "name": "shri-task-2",
   "version": "1.0.0",
   "description": "",
-  "main": "debug.js",
+  "main": "build/index.js",
   "scripts": {
     "test": "mocha",
     "debug": "node ./debug.js"
@@ -19,7 +19,6 @@
   "homepage": "https://github.com/cergmin/shri-task-2#readme",
   "devDependencies": {
     "chai": "^4.3.4",
-    "css-loader": "^5.0.2",
     "mocha": "^8.3.2"
   },
   "dependencies": {}
