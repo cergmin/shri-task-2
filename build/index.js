@@ -321,7 +321,7 @@ function prepareData(entities, params){
         'коммитов'
     );
 
-    let differenceText = (commitsAmountDiff > 0 ? '+' : '') + 
+    let differenceText = (commitsAmountDiff >= 0 ? '+' : '') + 
         commitsAmountDiff + ' с прошлого спринта';
 
     // Получаем вспомогательный массив с информацией о каждой категории
@@ -400,7 +400,7 @@ function prepareData(entities, params){
 
         let valueDiff = data['value'] - data['prevValue'];
 
-        newData['differenceText'] = (valueDiff > 0 ? '+' : '') + 
+        newData['differenceText'] = (valueDiff >= 0 ? '+' : '') + 
             valueDiff + ' ' +
             getPluralForm(
                 valueDiff,
