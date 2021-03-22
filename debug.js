@@ -2,17 +2,19 @@ const fs = require('fs');
 const util = require('util');
 const prepareData = require('./build/index.js').prepareData;
 
-let input_data = fs.readFileSync(
+let inputData = fs.readFileSync(
     './test/input.json',
     {
-        encoding:'utf8',
-        flag:'r'
+        encoding: 'utf8',
+        flag: 'r'
     }
 );
-input_data = JSON.parse(input_data);
+inputData = JSON.parse(inputData);
 
-try{
-    let data = prepareData(input_data, {'sprintId': 996});
+let inpData = inputData.slice();
+
+try {
+    let data = prepareData(inputData, { sprintId: 976 });
     console.log(
         util.inspect(
             data,
@@ -24,8 +26,7 @@ try{
             }
         )
     );
-}
-catch(err){
+} catch (err) {
     console.log('\x1b[41m\x1b[37m', 'Ошибка при запуске', '\x1b[0m');
     console.log(err);
 }
