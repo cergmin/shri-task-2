@@ -11,8 +11,6 @@ let inputData = fs.readFileSync(
 );
 inputData = JSON.parse(inputData);
 
-let inpData = inputData.slice();
-
 try {
     let data = prepareData(inputData, { sprintId: 976 });
     console.log(

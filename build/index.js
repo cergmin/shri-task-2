@@ -335,7 +335,7 @@ function prepareData (entities, params) {
         'коммитов'
     );
 
-    let differenceText = (commitsAmountDiff >= 0 ? '+' : '') +
+    let differenceText = (commitsAmountDiff > 0 ? '+' : '') +
         commitsAmountDiff + ' с прошлого спринта';
 
     // Получаем вспомогательный массив с информацией о каждой категории
@@ -356,7 +356,7 @@ function prepareData (entities, params) {
     }
 
     for (let commit of commits) {
-        // Проверяем, что спринт принадлежит
+        // Проверяем, что коммит принадлежит
         // текущему или предыдущему спринту
         if (commit.sprintId !== currSprint.id &&
             commit.sprintId !== (currSprint.id - 1).toString()) {
@@ -412,7 +412,7 @@ function prepareData (entities, params) {
 
         let valueDiff = data.value - data.prevValue;
 
-        newData.differenceText = (valueDiff >= 0 ? '+' : '') +
+        newData.differenceText = (valueDiff > 0 ? '+' : '') +
             valueDiff + ' ' +
             getPluralForm(
                 valueDiff,
