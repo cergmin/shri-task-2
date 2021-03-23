@@ -160,11 +160,6 @@ describe('Checking result for the sprint #996 (empty sprint)', function () {
         expect(data[0].data.users).to.be.empty;
     });
 
-    it('Users array should be empty in the vote card', function () {
-        // eslint-disable-next-line no-unused-expressions
-        expect(data[1].data.users).to.be.empty;
-    });
-
     it('Users array should be empty in the chart card', function () {
         // eslint-disable-next-line no-unused-expressions
         expect(data[2].data.users).to.be.empty;

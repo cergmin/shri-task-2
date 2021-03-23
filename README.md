@@ -29,7 +29,7 @@ rules: {
 
 ## Автотесты
 Для написания автотестов использовались две дополнительные библиотеки: moach и chai. Они достаточно известные и распространённые, благодаря чему, в них, скорее всего, будет меньше ошибок чем в самописном или ином решении, что очень важно для тестов. Также они помогли очень сильно ускорить покрытие кода различными проверками.
-Всего было написано 23 теста, их можно запустить командой ``npm test``:
+Всего было написано 22 теста, их можно запустить командой ``npm test``:
 
 **Module check**
 - should export prepareData function (49ms)
@@ -60,7 +60,6 @@ rules: {
 **Checking result for the sprint #996 (empty sprint)**
 - Cards should have subtitle with sprint name
 - Users array should be empty in the leaders card
-- Users array should be empty in the vote card
 - Users array should be empty in the chart card
 - Activity card should have zero activity
 

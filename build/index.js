@@ -264,11 +264,7 @@ function prepareData (entities, params) {
     };
 
     for (let [userId, userObj] of usersSortedByLikes) {
-        if (userObj.likes === 0) {
-            continue;
-        }
-
-        subdata.data.users.push({
+            subdata.data.users.push({
             id: Number(userId),
             name: users[userId].name,
             avatar: users[userId].avatar,
