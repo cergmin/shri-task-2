@@ -14,8 +14,7 @@ const userDefaultTemplate = {
     name: '',
     avatar: '',
     commits: 0,
-    likes: 0,
-    size: 0
+    likes: 0
 };
 
 const summariesDefaultTemplate = {
@@ -191,6 +190,7 @@ function prepareData (entities, params) {
     for (let i = 0; i < entities.length; i++) {
         writeEntity(entities[i]);
     }
+
     let usersSortedByCommits = Object.entries(users).sort((a, b) => {
         return b[1].commits - a[1].commits;
     });
@@ -238,14 +238,16 @@ function prepareData (entities, params) {
     };
 
     for (let [userId, userObj] of usersSortedByCommits) {
-        if (userObj.commits > 0) {
-            subdata.data.users.push({
-                id: Number(userId),
-                name: users[userId].name,
-                avatar: users[userId].avatar,
-                valueText: userObj.commits.toString()
-            });
+        if (userObj.commits === 0) {
+            continue;
         }
+
+        subdata.data.users.push({
+            id: Number(userId),
+            name: users[userId].name,
+            avatar: users[userId].avatar,
+            valueText: userObj.commits.toString()
+        });
     }
 
     data.push(subdata);
@@ -262,20 +264,22 @@ function prepareData (entities, params) {
     };
 
     for (let [userId, userObj] of usersSortedByLikes) {
-        if (userObj.likes > 0) {
-            subdata.data.users.push({
-                id: Number(userId),
-                name: users[userId].name,
-                avatar: users[userId].avatar,
-                valueText: userObj.likes.toString() + ' ' +
-                    getPluralForm(
-                        userObj.likes,
-                        'голос',
-                        'голоса',
-                        'голосов'
-                    )
-            });
+        if (userObj.likes === 0) {
+            continue;
         }
+
+        subdata.data.users.push({
+            id: Number(userId),
+            name: users[userId].name,
+            avatar: users[userId].avatar,
+            valueText: userObj.likes.toString() + ' ' +
+                getPluralForm(
+                    userObj.likes,
+                    'голос',
+                    'голоса',
+                    'голосов'
+                )
+        });
     }
 
     data.push(subdata);
@@ -306,14 +310,16 @@ function prepareData (entities, params) {
     }
 
     for (let [userId, userObj] of usersSortedByCommits) {
-        if (userObj.commits > 0) {
-            subdata.data.users.push({
-                id: Number(userId),
-                name: users[userId].name,
-                avatar: users[userId].avatar,
-                valueText: userObj.commits.toString()
-            });
+        if (userObj.commits === 0) {
+            continue;
         }
+
+        subdata.data.users.push({
+            id: Number(userId),
+            name: users[userId].name,
+            avatar: users[userId].avatar,
+            valueText: userObj.commits.toString()
+        });
     }
 
     data.push(subdata);
